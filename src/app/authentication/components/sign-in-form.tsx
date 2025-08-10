@@ -56,6 +56,7 @@ const SignInForm = () => {
           toast.error("Usuario ou senha inválidos.");
           form.setError("email", {});
           form.setError("password", {});
+          console.error("Sign in error:", error.error.message);
         },
       },
     });

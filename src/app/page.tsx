@@ -1,6 +1,7 @@
 import { desc } from "drizzle-orm";
 import Image from "next/image";
 
+import BrandList from "@/components/common/brand-list";
 import CategorySelector from "@/components/common/category-selector";
 import Footer from "@/components/common/footer";
 import Header from "@/components/common/header";
@@ -18,6 +19,18 @@ const Home = async () => {
     orderBy: [desc(productTable.createdAt)],
   });
 
+  const brands = [
+    { name: "Nike", logo: "/simple-icons_nike.svg" },
+    { name: "Adidas", logo: "/simple-icons_adidas.svg" },
+    { name: "Puma", logo: "/simple-icons_puma.svg" },
+    { name: "New Balance", logo: "/simple-icons_newbalance.svg" },
+    { name: "Under Armour", logo: "/simple-icons_underarmour.svg" },
+    { name: "Converse", logo: "/simple-icons_converse.svg" },
+    { name: "Hering", logo: "/simple-icons_hering.svg" },
+    { name: "Polo", logo: "/simple-icons_polo.svg" },
+    { name: "Lacoste", logo: "/simple-icons_lacoste.svg" },
+  ];
+
   return (
     <>
       <Header />
@@ -33,6 +46,8 @@ const Home = async () => {
             className="h-auto w-full"
           />
         </div>
+
+        <BrandList brands={brands} />
 
         <ProductList title="Mais vendidos" products={products} />
 

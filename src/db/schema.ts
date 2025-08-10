@@ -1,11 +1,59 @@
 import { relations } from "drizzle-orm";
-import { integer, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import {
+  boolean,
+  integer,
+  pgTable,
+  text,
+  timestamp,
+  uuid,
+} from "drizzle-orm/pg-core";
 
 export const userTable = pgTable("user", {
-  id: uuid().primaryKey().defaultRandom(),
-  name: text().notNull(),
+  id: uuid("id").primaryKey(),
+  name: text("name").notNull(),
+  email: text("email").notNull().unique(),
+  emailVerified: boolean("email_verified")
+    .$defaultFn(() => false)
+    .notNull(),
+  image: text("image"),
+  createdAt: timestamp("created_at")
+    .$defaultFn(() => /* @__PURE__ */ new Date())
+    .notNull(),
+  updatedAt: timestamp("updated_at")
+    .$defaultFn(() => /* @__PURE__ */ new Date())
+    .notNull(),
 });
 
+export const sessionTable = pgTable("session", {
+  id: uuid("id").primaryKey(),
+  expiresAt: timestamp("expires_at").notNull(),
+  token: text("token").notNull().unique(),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => userTable.id, { onDelete: "cascade" }),
+});
+
+export const accountTable = pgTable("account", {
+  id: uuid("id").primaryKey(),
+  accountId: uuid("account_id").notNull(),
+  providerId: uuid("provider_id").notNull(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => userTable.id, { onDelete: "cascade" }),
+  accessToken: text("access_token"),
+  refreshToken: text("refresh_token"),
+  idToken: text("id_token"),
+  accessTokenExpiresAt: timestamp("access_token_expires_at"),
+  refreshTokenExpiresAt: timestamp("refresh_token_expires_at"),
+  scope: text("scope"),
+  password: text("password"),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
+});
 export const categoryTable = pgTable("category", {
   id: uuid().primaryKey().defaultRandom(),
   name: text().notNull(),
@@ -21,7 +69,7 @@ export const productTable = pgTable("product", {
   id: uuid().primaryKey().defaultRandom(),
   categoryId: uuid("category_id")
     .notNull()
-    .references(() => categoryTable.id),
+    .references(() => categoryTable.id, { onDelete: "set null" }),
   name: text().notNull(),
   slug: text().notNull().unique(),
   description: text().notNull(),
@@ -41,7 +89,7 @@ export const productVariantTable = pgTable("product_variants", {
   name: text().notNull(),
   productId: uuid("product_id")
     .notNull()
-    .references(() => productTable.id),
+    .references(() => productTable.id, { onDelete: "cascade" }),
   color: text().notNull(),
   slug: text().notNull().unique(),
   priceInCents: integer("price_in_cents").notNull(),
